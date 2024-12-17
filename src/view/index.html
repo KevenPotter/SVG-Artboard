@@ -15,11 +15,27 @@
 
     <!-- 工具箱 -->
     <div id="toolBox" class="tool-box-display tool-box">
-        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="矩形" @click="changeType(1)"/>
-        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="圆形"/>
-        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="椭圆"/>
-        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="直线"/>
-        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="多边形"/>
+        <button class="image-button" :class="{selected:buttonType === 1}" @click="changeButtonType(1)">
+            <img src="../assets/icons/rect.svg" alt="rect">
+        </button>
+        <button class="image-button" :class="{selected:buttonType === 2}" @click="changeButtonType(2)">
+            <img src="../assets/icons/circle.svg" alt="circle">
+        </button>
+        <button class="image-button" :class="{selected:buttonType === 3}" @click="changeButtonType(3)">
+            <img src="../assets/icons/ellipse.svg" alt="ellipse">
+        </button>
+        <button class="image-button" :class="{selected:buttonType === 4}" @click="changeButtonType(4)">
+            <img src="../assets/icons/line.svg" alt="line">
+        </button>
+        <button class="image-button" :class="{selected:buttonType === 5}" @click="changeButtonType(5)">
+            <img src="../assets/icons/polygon.svg" alt="polygon">
+        </button>
+        <button class="image-button" :class="{selected:buttonType === 6}" @click="changeButtonType(6)">
+            <img src="../assets/icons/polyline.svg" alt="polyline">
+        </button>
+        <button class="image-button" :class="{selected:buttonType === 7}" @click="changeButtonType(7)">
+            <img src="../assets/icons/path.svg" alt="path">
+        </button>
     </div>
 
     <!-- svg区域 -->
@@ -45,6 +61,23 @@
             </rect>
         </g>
 
+        <g id="circleGroup">
+            <!-- 正在绘制的圆形 -->
+            <circle :cx="currentOptCircle.cx" :cy="currentOptCircle.cy" :r="currentOptCircle.r"
+                    :fill="currentOptCircle.fill"
+                    :stroke="currentOptCircle.stroke" :stroke-width="currentOptCircle.strokeWidth"
+            >
+            </circle>
+
+            <!-- 已有完成的圆形 -->
+            <circle v-for="circle in circleGroupList"
+                    :key="circle.id" :cx="circle.cx" :cy="circle.cy" :r="circle.r"
+                    :fill="circle.fill"
+                    :stroke="circle.stroke" :stroke-width="circle.strokeWidth"
+            >
+            </circle>
+        </g>
+
     </svg>
 </div>
 
@@ -55,10 +88,13 @@
         setup() {
             const coordinatesTip = ref({x: 0, y: 0}) // 鼠标移动的坐标
             const coordinates = ref({})
+            const buttonType = ref(null)
             const isOpt = ref(false)
             let currentOptRect = ref({})
+            let currentOptCircle = ref({})
             let mouseDownType = null // 记录鼠标按下状态
             let rectGroupList = ref([])
+            let circleGroupList = ref([])
 
             // 组件挂载时绑定事件
             onMounted(() => {
@@ -86,10 +122,21 @@
                 svgElement.addEventListener('mouseup', () => {
                     mouseDownType = null
                     isOpt.value = false
-                    if (currentOptRect.value.width > 0 && currentOptRect.value.height > 0) {
-                        rectGroupList.value.push(currentOptRect.value)
-                        currentOptRect.value = {}
+                    switch (buttonType.value) {
+                        case 1:
+                            if (currentOptRect.value.width > 0 && currentOptRect.value.height > 0) {
+                                rectGroupList.value.push(currentOptRect.value)
+                                currentOptRect.value = {}
+                            }
+                            break;
+                        case 2:
+                            if (currentOptCircle.value.r > 0) {
+                                circleGroupList.value.push(currentOptCircle.value)
+                                currentOptCircle.value = {}
+                            }
+                            break;
                     }
+
                 })
 
                 /** 监听鼠标移动事件 */
@@ -102,8 +149,26 @@
 
             })
 
+            /** 选择按钮类型操作 */
+            const changeButtonType = (type) => {
+                if (buttonType.value === type) buttonType.value = null
+                else buttonType.value = type
+            }
+
             /** 鼠标左键移动事件 */
             const mouseMoveLeft = (e) => {
+                switch (buttonType.value) {
+                    case 1:
+                        drawRect(e)
+                        break;
+                    case 2:
+                        drawCircle(e)
+                        break;
+                }
+            }
+
+            /** 矩形描画操作 */
+            const drawRect = (e) => {
                 let startX = coordinates.value.x, startY = coordinates.value.y
                 let width = e.offsetX - startX, height = e.offsetY - startY
                 if (width < 0) {
@@ -128,17 +193,35 @@
                 }
             }
 
+            /** 圆形描画操作 */
+            const drawCircle = (e) => {
+                let startX = coordinates.value.x, startY = coordinates.value.y
+                let r = e.offsetX - startX
+                if (r < 0) {
+                    currentOptCircle.value.r = -r
+                } else {
+                    currentOptCircle.value.r = r
+                }
+
+                currentOptCircle.value = {
+                    ...currentOptCircle.value,
+                    id: Date.now(),
+                    cx: startX, cy: startY, fill: 'none', stroke: 'lightBlue', strokeWidth: 2
+                }
+
+            }
+
             /** 鼠标右键移动事件 */
             const mouseMoveRight = (e) => {
 
             }
 
-            const changeType = (type) => {
-                console.log(type)
-            }
+
             return {
-                coordinates, coordinatesTip, isOpt, currentOptRect, rectGroupList, changeType
-                // 方法
+                coordinates, coordinatesTip, buttonType, isOpt,
+                currentOptRect, rectGroupList,
+                currentOptCircle, circleGroupList,
+                changeButtonType
             }
         }
     })
@@ -151,8 +234,12 @@
 <style>
     .tool-box-display {
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        flex-direction: column; /* 垂直排列 */
+        align-items: center; /* 水平居中 */
+        justify-content: space-between; /* 垂直方向平均分布 */
+        height: 100%; /* 让容器高度填满父容器 */
+        padding: 10px 0; /* 可选：给顶部和底部增加一点内边距 */
+        box-sizing: border-box; /* 让 padding 包含在高度内 */
     }
 
     .tool-box {
@@ -162,10 +249,43 @@
         width: 50px;
         height: 500px;
         border-radius: 10px;
-        border: 2px solid black;
+        border: 2px solid #5C5C5C;
     }
 
-    .img-vertical-spacing {
-        margin-top: 10px;
+    .image-button {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .image-button:focus {
+        outline: none; /* 去除默认的焦点边框 */
+    }
+
+    .image-button img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.2s ease;
+    }
+
+    /* 鼠标移到按钮时，按钮变小并内嵌 */
+    .image-button:hover img {
+        transform: scale(0.9); /* 图片缩小，内嵌效果 */
+    }
+
+    /* 鼠标点击时，保持内嵌效果 */
+    .image-button:active img {
+        transform: scale(0.75); /* 更小的内嵌效果 */
+    }
+
+    /* 按钮被选中时的内嵌效果 */
+    .image-button.selected img {
+        transform: scale(0.75); /* 选中时缩小，保持内嵌效果 */
     }
 </style>
