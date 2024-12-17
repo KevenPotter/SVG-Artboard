@@ -15,10 +15,11 @@
 
     <!-- 工具箱 -->
     <div id="toolBox" class="tool-box-display tool-box">
-        <img src="../assets/icons/html.png" width="40" height="40" alt=""/>
-        <img src="../assets/icons/html.png" width="40" height="40" alt=""/>
-        <img src="../assets/icons/html.png" width="40" height="40" alt=""/>
-        <img src="../assets/icons/html.png" width="40" height="40" alt=""/>
+        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="矩形" @click="changeType(1)"/>
+        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="圆形"/>
+        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="椭圆"/>
+        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="直线"/>
+        <img class="img-vertical-spacing" src="../assets/icons/html.png" :width="40" :height="40" alt="多边形"/>
     </div>
 
     <!-- svg区域 -->
@@ -99,40 +100,45 @@
                     else if (mouseDownType === 2) mouseMoveRight(e)
                 })
 
-                /** 鼠标左键移动事件 */
-                const mouseMoveLeft = (e) => {
-                    let startX = coordinates.value.x, startY = coordinates.value.y
-                    let width = e.offsetX - startX, height = e.offsetY - startY
-                    if (width < 0) {
-                        currentOptRect.value.x = e.offsetX
-                        currentOptRect.value.width = startX - e.offsetX
-                    } else {
-                        currentOptRect.value.x = startX
-                        currentOptRect.value.width = width
-                    }
-
-                    if (height < 0) {
-                        currentOptRect.value.y = e.offsetY
-                        currentOptRect.value.height = startY - e.offsetY
-                    } else {
-                        currentOptRect.value.y = startY
-                        currentOptRect.value.height = height
-                    }
-                    currentOptRect.value = {
-                        ...currentOptRect.value,
-                        id: Date.now(),
-                        rx: 10, ry: 10, fill: 'none', stroke: 'lightBlue', strokeWidth: 2
-                    }
-                }
-
-                /** 鼠标右键移动事件 */
-                const mouseMoveRight = (e) => {
-
-                }
             })
 
+            /** 鼠标左键移动事件 */
+            const mouseMoveLeft = (e) => {
+                let startX = coordinates.value.x, startY = coordinates.value.y
+                let width = e.offsetX - startX, height = e.offsetY - startY
+                if (width < 0) {
+                    currentOptRect.value.x = e.offsetX
+                    currentOptRect.value.width = startX - e.offsetX
+                } else {
+                    currentOptRect.value.x = startX
+                    currentOptRect.value.width = width
+                }
+
+                if (height < 0) {
+                    currentOptRect.value.y = e.offsetY
+                    currentOptRect.value.height = startY - e.offsetY
+                } else {
+                    currentOptRect.value.y = startY
+                    currentOptRect.value.height = height
+                }
+                currentOptRect.value = {
+                    ...currentOptRect.value,
+                    id: Date.now(),
+                    rx: 10, ry: 10, fill: 'none', stroke: 'lightBlue', strokeWidth: 2
+                }
+            }
+
+            /** 鼠标右键移动事件 */
+            const mouseMoveRight = (e) => {
+
+            }
+
+            const changeType = (type) => {
+                console.log(type)
+            }
             return {
-                coordinates, coordinatesTip, isOpt, currentOptRect, rectGroupList
+                coordinates, coordinatesTip, isOpt, currentOptRect, rectGroupList, changeType
+                // 方法
             }
         }
     })
@@ -157,5 +163,9 @@
         height: 500px;
         border-radius: 10px;
         border: 2px solid black;
+    }
+
+    .img-vertical-spacing {
+        margin-top: 10px;
     }
 </style>
