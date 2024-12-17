@@ -1,138 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>SvgTest</title>
-	<!-- 引入 Vue 3 -->
-	<script src="https://cdn.staticfile.net/vue/3.0.5/vue.global.js"></script>
+    <meta charset="UTF-8">
+    <title>SvgTest</title>
+    <!-- 引入 Vue 3 -->
+    <script src="https://cdn.staticfile.net/vue/3.0.5/vue.global.js"></script>
 </head>
 <body>
 
 <!-- Vue 挂载的容器 -->
 <div id="customApp" style="position: relative">
-	<!-- 坐标点提示 -->
-	<p style="font-size: 14px">当前鼠标移动坐标：{{ coordinatesTip }}</p>
+    <!-- 坐标点提示 -->
+    <p style="font-size: 14px">当前鼠标移动坐标：{{ coordinatesTip }}</p>
 
-	<!-- 工具箱 -->
-	<div id="toolBox" style="position:absolute;top:100px;left:10px;width: 50px;height: 500px;border-radius: 10px;border: 2px solid black"></div>
+    <!-- 工具箱 -->
+    <div id="toolBox" class="tool-box-display tool-box">
+        <img src="../assets/icons/html.png" width="40" height="40" alt=""/>
+        <img src="../assets/icons/html.png" width="40" height="40" alt=""/>
+        <img src="../assets/icons/html.png" width="40" height="40" alt=""/>
+        <img src="../assets/icons/html.png" width="40" height="40" alt=""/>
+    </div>
 
-	<!-- svg区域 -->
-	<svg id="svgId" width="1500" height="640" xmlns="http://www.w3.org/2000/svg" style="border: 1px solid #5C5C5C;">
+    <!-- svg区域 -->
+    <svg id="svgId" width="1500" height="640" xmlns="http://www.w3.org/2000/svg" style="border: 1px solid #5C5C5C;">
 
-		<g id="rectGroup">
-			<!-- 正在绘制的矩形 -->
-			<rect v-if="isOpt"
-				  :x="currentOptRect.x" :y="currentOptRect.y" :width="currentOptRect.width" :height="currentOptRect.height"
-				  :rx="currentOptRect.rx" :ry="currentOptRect.ry"
-				  :fill="currentOptRect.fill"
-				  :stroke="currentOptRect.stroke" :stroke-width="currentOptRect.strokeWidth"
-			>
-			</rect>
+        <g id="rectGroup">
+            <!-- 正在绘制的矩形 -->
+            <rect v-if="isOpt"
+                  :x="currentOptRect.x" :y="currentOptRect.y" :width="currentOptRect.width" :height="currentOptRect.height"
+                  :rx="currentOptRect.rx" :ry="currentOptRect.ry"
+                  :fill="currentOptRect.fill"
+                  :stroke="currentOptRect.stroke" :stroke-width="currentOptRect.strokeWidth"
+            >
+            </rect>
 
-			<!-- 已有完成的矩形 -->
-			<rect v-for="rect in rectGroupList"
-				  :key="rect.id" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height"
-				  :rx="rect.rx" :ry="rect.ry"
-				  :fill="rect.fill"
-				  :stroke="rect.stroke" :stroke-width="rect.strokeWidth"
-			>
-			</rect>
-		</g>
+            <!-- 已有完成的矩形 -->
+            <rect v-for="rect in rectGroupList"
+                  :key="rect.id" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height"
+                  :rx="rect.rx" :ry="rect.ry"
+                  :fill="rect.fill"
+                  :stroke="rect.stroke" :stroke-width="rect.strokeWidth"
+            >
+            </rect>
+        </g>
 
-	</svg>
+    </svg>
 </div>
 
 <script>
-	const { ref, onMounted } = Vue
+    const {ref, onMounted} = Vue
 
-	const customApp = Vue.createApp({
-		setup() {
-			const coordinatesTip = ref({ x: 0, y: 0 }) // 鼠标移动的坐标
-			const coordinates = ref({})
-			const isOpt = ref(false)
-			let currentOptRect = ref({})
-			let mouseDownType = null // 记录鼠标按下状态
-			let rectGroupList = ref([])
+    const customApp = Vue.createApp({
+        setup() {
+            const coordinatesTip = ref({x: 0, y: 0}) // 鼠标移动的坐标
+            const coordinates = ref({})
+            const isOpt = ref(false)
+            let currentOptRect = ref({})
+            let mouseDownType = null // 记录鼠标按下状态
+            let rectGroupList = ref([])
 
-			// 组件挂载时绑定事件
-			onMounted(() => {
-				const svgElement = document.getElementById('svgId')
+            // 组件挂载时绑定事件
+            onMounted(() => {
+                const svgElement = document.getElementById('svgId')
 
-				/** 禁止右键菜单弹出 */
-				svgElement.addEventListener('contextmenu', (e) => {
-					e.preventDefault()
-				})
+                /** 禁止右键菜单弹出 */
+                svgElement.addEventListener('contextmenu', (e) => {
+                    e.preventDefault()
+                })
 
-				/** 监听鼠标按下事件 */
-				svgElement.addEventListener('mousedown', (e) => {
-					e.preventDefault()
-					// 判断鼠标按键
-					if (e.button === 0) {
-						coordinates.value = { x: e.offsetX, y: e.offsetY }
-						isOpt.value = true
-						mouseDownType = 0
-					} // 左键
-					else if (e.button === 1) mouseDownType = 1 // 中键
-					else if (e.button === 2) mouseDownType = 2 // 右键
-				})
+                /** 监听鼠标按下事件 */
+                svgElement.addEventListener('mousedown', (e) => {
+                    e.preventDefault()
+                    // 判断鼠标按键
+                    if (e.button === 0) {
+                        coordinates.value = {x: e.offsetX, y: e.offsetY}
+                        isOpt.value = true
+                        mouseDownType = 0
+                    } // 左键
+                    else if (e.button === 1) mouseDownType = 1 // 中键
+                    else if (e.button === 2) mouseDownType = 2 // 右键
+                })
 
-				/** 监听鼠标松开事件 */
-				svgElement.addEventListener('mouseup', () => {
-					mouseDownType = null
-					isOpt.value = false
-					if (currentOptRect.value.width > 0 && currentOptRect.value.height > 0) {
-						rectGroupList.value.push(currentOptRect.value)
-						currentOptRect.value = {}
-					}
-				})
+                /** 监听鼠标松开事件 */
+                svgElement.addEventListener('mouseup', () => {
+                    mouseDownType = null
+                    isOpt.value = false
+                    if (currentOptRect.value.width > 0 && currentOptRect.value.height > 0) {
+                        rectGroupList.value.push(currentOptRect.value)
+                        currentOptRect.value = {}
+                    }
+                })
 
-				/** 监听鼠标移动事件 */
-				svgElement.addEventListener('mousemove', (e) => {
-					// 更新坐标信息
-					coordinatesTip.value = { x: e.offsetX, y: e.offsetY }
-					if (mouseDownType === 0) mouseMoveLeft(e)
-					else if (mouseDownType === 2) mouseMoveRight(e)
-				})
+                /** 监听鼠标移动事件 */
+                svgElement.addEventListener('mousemove', (e) => {
+                    // 更新坐标信息
+                    coordinatesTip.value = {x: e.offsetX, y: e.offsetY}
+                    if (mouseDownType === 0) mouseMoveLeft(e)
+                    else if (mouseDownType === 2) mouseMoveRight(e)
+                })
 
-				/** 鼠标左键移动事件 */
-				const mouseMoveLeft = (e) => {
-					let startX = coordinates.value.x, startY = coordinates.value.y
-					let width = e.offsetX - startX, height = e.offsetY - startY
-					if (width < 0) {
-						currentOptRect.value.x = e.offsetX
-						currentOptRect.value.width = startX - e.offsetX
-					} else {
-						currentOptRect.value.x = startX
-						currentOptRect.value.width = width
-					}
+                /** 鼠标左键移动事件 */
+                const mouseMoveLeft = (e) => {
+                    let startX = coordinates.value.x, startY = coordinates.value.y
+                    let width = e.offsetX - startX, height = e.offsetY - startY
+                    if (width < 0) {
+                        currentOptRect.value.x = e.offsetX
+                        currentOptRect.value.width = startX - e.offsetX
+                    } else {
+                        currentOptRect.value.x = startX
+                        currentOptRect.value.width = width
+                    }
 
-					if (height < 0) {
-						currentOptRect.value.y = e.offsetY
-						currentOptRect.value.height = startY - e.offsetY
-					} else {
-						currentOptRect.value.y = startY
-						currentOptRect.value.height = height
-					}
-					currentOptRect.value = {
-						...currentOptRect.value,
-						id: Date.now(),
-						rx: 10, ry: 10, fill: 'none', stroke: 'lightBlue', strokeWidth: 2
-					}
-				}
+                    if (height < 0) {
+                        currentOptRect.value.y = e.offsetY
+                        currentOptRect.value.height = startY - e.offsetY
+                    } else {
+                        currentOptRect.value.y = startY
+                        currentOptRect.value.height = height
+                    }
+                    currentOptRect.value = {
+                        ...currentOptRect.value,
+                        id: Date.now(),
+                        rx: 10, ry: 10, fill: 'none', stroke: 'lightBlue', strokeWidth: 2
+                    }
+                }
 
-				/** 鼠标右键移动事件 */
-				const mouseMoveRight = (e) => {
+                /** 鼠标右键移动事件 */
+                const mouseMoveRight = (e) => {
 
-				}
-			})
+                }
+            })
 
-			return {
-				coordinates, coordinatesTip, isOpt, currentOptRect, rectGroupList
-			}
-		}
-	})
-	customApp.mount('#customApp')
+            return {
+                coordinates, coordinatesTip, isOpt, currentOptRect, rectGroupList
+            }
+        }
+    })
+    customApp.mount('#customApp')
 </script>
 
 </body>
 </html>
+
+<style>
+    .tool-box-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tool-box {
+        position: absolute;
+        top: 100px;
+        left: 10px;
+        width: 50px;
+        height: 500px;
+        border-radius: 10px;
+        border: 2px solid black;
+    }
+</style>
