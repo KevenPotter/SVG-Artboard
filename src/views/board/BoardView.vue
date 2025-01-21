@@ -32,7 +32,7 @@
         <!-- 工具箱 -->
         <!-- svg区域 -->
         <el-main>
-            <svg id="svgId" :width="whiteboardSize.width" :height="whiteboardSize.height" xmlns="http://www.w3.org/2000/svg" style="border: 1px solid #5C5C5C;position: absolute;left: 10%;top:10%">
+            <svg id="svgId" :width="whiteboardSize.width" :height="whiteboardSize.height" xmlns="http://www.w3.org/2000/svg" class="artBoard">
 
                 <!-- 矩形组 -->
                 <g id="rectGroup">
@@ -111,7 +111,7 @@
         </el-main>
 
         <el-footer>
-            <p style="font-size: 14px;font-weight: 900">坐标：({{ coordinatesTip.x }},{{ coordinatesTip.y }})</p>
+            <p class="footer">坐标：({{ coordinatesTip.x }},{{ coordinatesTip.y }})</p>
         </el-footer>
     </el-container>
 </template>
@@ -380,6 +380,21 @@ const mouseMoveRight = (e) => {
 
 :deep(.el-header) {
     height: 20px;
+}
+
+.artBoard {
+    border: 1px solid #5C5C5C;
+    position: absolute;
+    left: 10%;
+    top: 10%
+}
+
+.footer {
+    font-size: 14px;
+    font-weight: 900;
+    position: absolute;
+    bottom: 2%;
+    left: 10%
 }
 
 </style>
